@@ -1,0 +1,53 @@
+//----------------------------------------------------------------------------
+//  define a panel to run the different demos
+//----------------------------------------------------------------------------
+
+load_file("nrngui.hoc")
+
+strdef tstr
+
+objref El
+
+electrodes_present=0	// after electrodes are created they must be
+			// destroyed if simulation restarted
+
+proc destroy_elec() {
+	execute("objref stim, vc",El)
+}
+
+	xpanel("Simulations of TC cells")
+	xlabel("Simulations of TC cells with IT.  Destexhe et al 1996")
+	xbutton("Burst behavior in single-compartment model","restart(\"tc1_cc\")")
+	xbutton("Burst behavior in 3-compartment model","restart(\"tc3_cc\")")
+        xbutton("Burst behavior in detailed cell model","restart(\"tc200_cc\")")
+        xbutton("Voltage-clamp in detailed cell model","restart(\"tc200_vc\")")
+        xbutton("Voltage-clamp in dissociated cell model","restart(\"tcD_vc\")")
+	xpanel(5,100)
+
+pwmcnt = PWManager[0].count  // the initial GUIs should not be dismissed
+ismenu=0		// determines if electrode is defined
+
+
+proc restart() { local i
+	if (electrodes_present) {
+		destroy_elec()
+	}
+
+	forall delete_section()
+
+	for i=0, n_graph_lists-1 {
+		graphList[i].remove_all()
+	}
+	flush_list.remove_all()
+	fast_flush_list.remove_all()
+	doNotify()
+	for (i= PWManager[0].count-1; i >= pwmcnt; i -= 1) {
+		PWManager[0].close(i)
+		doNotify()
+	}
+	stoprun = 0
+	cvode_active(0)
+	
+	sprint(tstr, "%s.oc", $s1)
+	load_file(1, tstr)
+}
