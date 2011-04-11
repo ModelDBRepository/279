@@ -70,7 +70,7 @@ ASSIGNED {
 }
 
 BREAKPOINT {
-	SOLVE castate METHOD euler
+	SOLVE castate METHOD cnexp
 	ica = pcabar * m*m*h * ghk(v, cai, cao)
 }
 
